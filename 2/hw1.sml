@@ -1,25 +1,31 @@
+
+(* 1 *)
 fun is_older ( first:(int * int * int), second:(int * int * int)) =
   let val y1 = #1 first;
       val y2 = #1 second;
   in
       if y1  < y2 then true
+      else if y1 > y2 then false
       else
 	  let val m1 =  #2 first
 	      val m2 =  #2 second
 	  in
 	      if m1 < m2 then true
 	      else
-		  let val d1 = #3 first
-		      val d2 = #3 second
-		  in
-		      if d1 < d2 then true
-		      else
-			  false
+		  if m1 > m2 then false
+		  else
+		      let val d1 = #3 first	      
+			  val d2 = #3 second
+		      in
+			  if d1 < d2 then true
+			  else
+			      false
 		  end
 		      
 	  end
   end;
 
+(* 2 *)
 fun number_in_month(date_list: (int * int * int) list, month: int ) =
   if null date_list then 0
   else
@@ -93,6 +99,34 @@ fun what_month(day: int) =
       number_before_reaching_sum(day, days_per_month) + 1
   end;
 
+(* 10 *)
+fun month_range(day1:int, day2:int) =
+  if day1 > day2 then []
+  else
+      what_month(day1) :: month_range(day1 + 1, day2);
 
-	  
+
+(* 11 *)
+
+fun oldest(date_list: (int * int * int) list) =
+  if null date_list then NONE
+  else
+      let fun calc_older_nonempty(date_list: (int * int * int) list) =
+	    let val head = hd date_list
+	    in
+		if null(tl date_list) then
+		    head
+		else
+		    let val older = calc_older_nonempty(tl date_list);
+		    in
+			if is_older(head, older) then
+			    head
+			else
+			    older
+		    end
+	    end
+
+      in
+	  SOME(calc_older_nonempty date_list)
+      end
 	  
