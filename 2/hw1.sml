@@ -40,7 +40,7 @@ fun number_in_month(date_list: (int * int * int) list, month: int ) =
 	      c
 	      
       end;
-
+(* 3 *)
 fun number_in_months(date_list: (int * int * int) list, month_list: int list) =
   if null month_list  then 0
   else
@@ -128,5 +128,81 @@ fun oldest(date_list: (int * int * int) list) =
 
       in
 	  SOME(calc_older_nonempty date_list)
+      end;
+
+(* 12 *)
+
+(* urgly implemention *)
+fun remove_duplicate(list: int list) =
+  let fun not_in(v: int, list:int list) =
+	if null list then true
+	else if v = hd list then false
+	else not_in(v, tl list)
+  in
+      if null list then []
+      else
+	  let val no_dup = remove_duplicate(tl list);
+	      val v = hd list
+	  in
+	      if not_in(v,no_dup) then v::no_dup
+	      else no_dup
+	  end
+  end
+
+(* real used in fact *)
+fun remove_duplicate2(list: int list) =
+  if null list then []
+  else let
+      fun rm(v: int, from: int list) =
+	if null from then []
+	else let
+	    val  cmp_num  = hd list
+	    val  rmed_list = rm(v, tl list)
+	in
+	    if v = cmp_num then rmed_list
+	    else cmp_num :: rmed_list
+	end
+		 
+      val h = hd list;
+  in
+      rm(h, tl list)
+  end;
+
+fun number_in_months_challenge(date_list: (int * int * int) list, month_list: int list) =
+  number_in_months(date_list, remove_duplicate2(month_list))
+		  
+fun dates_in_months_challenge(date_list: (int * int * int) list, month_list: int list) =
+  dates_in_months(date_list, remove_duplicate2(month_list))
+
+(* 13 *)
+fun reasonable_date(date: (int * int * int)) =
+  let val year = #1 date;
+      val month = #2  date;
+      val day = #3 date;
+  in
+      if year <= 0 then false
+      else if month <  1 orelse  month > 12 then  false
+      else let
+	  fun is_leap(year: int) =
+	    if year mod 400 = 0 then true
+	    else if year mod 4 = 0 andalso year mod 100 <> 0 then true
+	    else false
+	  fun get_days_of_month(month: int) =
+	    let val days_per_month = [31, 28, 31, 30,
+		       31, 30, 31, 31,
+		       30, 31, 30, 31];
+		fun get(days: int list, month: int) =
+		  if month = 1 then hd days
+		  else
+		      get(tl days, month - 1)
+	    in
+		if month = 2 andalso is_leap(year) then 29
+		else
+		    get(days_per_month, month)
+	    end		
+      in
+	  if day < 1 orelse day > get_days_of_month(month) then false
+	  else true
       end
-	  
+  end
+      

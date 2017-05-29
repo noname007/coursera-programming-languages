@@ -31,3 +31,11 @@ val test12 = is_older((5,4,4),(4,5,4))
 val test13 = oldest([ ]) = NONE
 val test14 = month_range(59,61) = [2,3,3]
 val test15 = what_month 365 = 12
+val test16 = number_in_months_challenge([(2012,2,28),(2013,12,1),(2011,3,31),(2011,4,28)],[2,3,2,3,4]) = 3
+val test17 = dates_in_months_challenge([(2012,2,28),(2013,12,1),(2011,3,31),(2011,4,28)],[2,3,2,3,4,4]) = [(2012,2,28),(2011,3,31),(2011,4,28)]
+val test18 = reasonable_date(2017,6,31) = false;
+val test19 = reasonable_date(2017,6,30) = true;
+val test20 = reasonable_date(2016,2,29) = true;
+val test21 = reasonable_date(2017,2,29) = false;
+val test22 = reasonable_date(2017,5,30) = true;
+val test23 = reasonable_date(2017,5,31) = true;
