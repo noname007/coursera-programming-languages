@@ -69,3 +69,80 @@ datatype move = Discard of card | Draw
 exception IllegalMove
 
 (* put your solutions for problem 2 here *)
+(* 2a *)
+fun card_color(card:card) =
+  case card of
+      (Clubs, _) => Red
+    | (Spades, _) => Red
+    | _  => Black
+
+fun card_value (card:card)=
+  case card of
+      (_, Ace) => 11
+    | (_, Num n) => n
+    | _  =>  10
+		 
+fun remove_card(cs: card list, c: card, e) =
+  let fun remove (cs, accu) =
+	case cs of
+	    [] => raise e
+	  | h :: t => if h = c  then accu @ t
+		      else remove(t, accu @ [h])
+  in
+      remove(cs, [])
+  end;
+
+(*
+fun all_same_color (cs: card)  =
+  let fun same_color(cs: card, color: color) =
+	case cs of
+	    [] => true
+	  | h :: t =>let val (c,_) = h;
+		     in
+			 if c = color then same_color(t, c)  else false
+		     end;
+  in
+      case cs of
+	  [] => true
+	| (color:color, _) :: t =>  same_color(t, color)
+  end;		    
+*)
+
+(*
+may be need to refact ...
+*)
+fun all_same_color (cs: card list)  =
+  case  cs of
+      [] => true
+    | h1::[] => true
+    | h1 :: h2 :: t => let val c1 = card_color(h1);
+			   val c2 = card_color(h2);
+		       in
+			   if c1 = c2  then all_same_color(h2 :: t)  else false
+		       end
+		    
+      
+
+
+fun sum_cards (cs: card list) =
+  let fun sum(cs: card list, accu) =
+	case cs of
+	    [] => accu
+	  | h :: t  => sum(t, accu + card_value(h))
+  in
+      sum(cs, 0)
+  end;
+
+
+fun score (cs: card list, goal: int) =
+  let val sum = sum_cards(cs);
+      val pre_score = if sum > goal then 3 *  ( sum - goal ) else goal - sum;
+  in
+      if all_same_color (cs) then pre_score div 2 else pre_score
+  end;
+
+
+fun officiate(cs: card list, move: move list, goal: int) =
+  let val held_cards = [];
+      
+			   
