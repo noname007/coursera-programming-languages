@@ -38,9 +38,12 @@ val test13 = ((officiate([(Clubs,Jack),(Spades,Num(8))],
                false) 
               handle IllegalMove => true)
 
+
 val test3a0 = score_challenge([(Clubs,Num 9),(Hearts,Ace),(Clubs,Ace),(Hearts,King)], 21) = 0;
 val test3a1 = score_challenge([(Clubs,Num 6),(Hearts,Ace),(Clubs,Ace), (Hearts,Num 5)], 25) = 2;
 val test3a2 = score_challenge([(Clubs,Num 6),(Hearts,Ace),(Clubs,Ace), (Hearts,Num 5)], 32) = 3;
 val test3a3 = score_challenge([(Clubs,Num 2),(Spades,Ace),(Clubs,Ace), (Clubs,King)], 21) = 3;
 val test3a4 = score_challenge([(Clubs,Num 2),(Hearts,Ace),(Clubs,Ace), (Clubs,King)], 21) = 7;             
              
+val test3b0 = careful_player([(Clubs,Num 9),(Hearts,Ace),(Clubs,Ace),(Hearts,King)], 21) = [Draw,Draw,Draw,Draw];
+val test3b1 = careful_player([(Clubs,Num 9),(Hearts,Ace),(Clubs,Ace),(Clubs,Num 9),(Clubs,Num 9),(Hearts,King)], 21) ;

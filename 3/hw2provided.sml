@@ -217,10 +217,42 @@ fun officiate_challenge(cs: card list, move: move list, goal: int) =
 	end;
   in
       play(cs, move, [])
-  end;
-
-
+  end
+      
+      
+(* 3b *)
+fun careful_player(cs: card list, goal: int) =
   
-
-
-  
+  let fun play(cs: card list, held: card list, moves: move list) =
+	
+	let fun tmp_helds_score(card) =
+	      (held @ [card], score_challenge(held @ [card], goal))
+	in
+	    case cs of
+		[] => moves	    
+	      | card1 ::  t1 =>
+		let val tmp_held = held @ [card1];
+		    val tmp_score = score_challenge(tmp_held, goal)
+		in
+		    if tmp_score <= goal - 10  then
+			play(t1, tmp_held, moves @ [Draw])
+		    else  if tmp_score > goal then
+			moves
+		    else
+			case t1 of
+			    [] => moves
+			  | card2 :: t2 =>
+			    case tmp_helds_score(card2) of
+				(tmp_held2 , tmp_score2) =>
+				if tmp_score2 <>  0 then
+				    play(t1, tmp_held, moves @  [Draw])
+					
+				else
+				    moves  @ [ Discard  card1] @ [Draw]
+		end
+		    
+	end
+  in
+      play(cs, [], [])
+  end
+      
