@@ -75,13 +75,13 @@ fun card_color(card:card) =
       (Clubs, _) => Red
     | (Spades, _) => Red
     | _  => Black
-
+(* 2b *)
 fun card_value (card:card)=
   case card of
       (_, Ace) => 11
     | (_, Num n) => n
     | _  =>  10
-		 
+(* 2c *)		 
 fun remove_card(cs: card list, c: card, e) =
   let fun remove (cs, accu) =
 	case cs of
@@ -111,6 +111,7 @@ fun all_same_color (cs: card)  =
 (*
 may be need to refact ...
 *)
+(* 2d *)
 fun all_same_color (cs: card list)  =
   case  cs of
       [] => true
@@ -120,10 +121,7 @@ fun all_same_color (cs: card list)  =
 		       in
 			   if c1 = c2  then all_same_color(h2 :: t)  else false
 		       end
-		    
-      
-
-
+(* 2e *)
 fun sum_cards (cs: card list) =
   let fun sum(cs: card list, accu) =
 	case cs of
@@ -133,7 +131,7 @@ fun sum_cards (cs: card list) =
       sum(cs, 0)
   end;
 
-
+(* 2f *)
 fun score (cs: card list, goal: int) =
   let val sum = sum_cards(cs);
       val pre_score = if sum > goal then 3 *  ( sum - goal ) else goal - sum;
@@ -141,8 +139,27 @@ fun score (cs: card list, goal: int) =
       if all_same_color (cs) then pre_score div 2 else pre_score
   end;
 
-
+(* 2g *)
 fun officiate(cs: card list, move: move list, goal: int) =
-  let val held_cards = [];
-      
+  let fun play(cs, move, held_cards: card list) =
+	let val now_score = score(held_cards, goal);
+	in
+	    if now_score > goal then now_score
+	    else
+		case move of
+		    [] => now_score
+		  | Discard(card) :: move_lists =>
+		    play(cs, move_lists, remove_card(held_cards, card,  IllegalMove))
+		  | Draw :: move_lists =>
+		    case cs of
+			[] => now_score
+		      | first :: card_lists =>
+			play(card_lists, move_lists,held_cards @ [first])
+	end;
+  in
+      play(cs, move, [])
+  end;
+
+
+
 			   
