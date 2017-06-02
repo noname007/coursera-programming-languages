@@ -160,6 +160,67 @@ fun officiate(cs: card list, move: move list, goal: int) =
       play(cs, move, [])
   end;
 
+(* 3a challenge *)
+(* 
+solve hints
+refer : 
+1. https://www.coursera.org/learn/programming-languages/discussions/weeks/3/threads/loOF3rsjEeaIRw7T1E5tHA
+2. https://www.coursera.org/learn/programming-languages/discussions/weeks/3/threads/Z9KVbGHOEearWApJMKuNaw/replies/v2za_2IbEeaGXQq5jeF-9Q?sort=createdAtAsc&page=1
+
+enumberate the suituations that each Ace may have the value 1 ,so likly add the -10 card to the card list,keep the color of the card with the ace at the same time
+
+*)
+fun score_challenge(cs: card list, goal: int) =
+  let  fun count_ace_nums (cs, aces) = 
+	 case cs of
+	     [] => aces
+	   | (c, Ace) :: t  =>  count_ace_nums(t, aces @ [(c, Ace)])
+	   | _ :: t =>  count_ace_nums(t, aces)
+				      
+       val aces = count_ace_nums(cs, []);
+       
+       fun least_sum(cs, aces, least_score) =
+	 case aces of
+	     [] => least_score
+	   | (c, _) :: t  => let val tmp_cs = cs @ [(c, Num( ~10))];
+				 val tmp_sum = score(tmp_cs, goal);
+			     in
+				 if tmp_sum < least_score then 
+				     least_sum(tmp_cs, t , tmp_sum)
+				 else
+				     least_sum(tmp_cs, t, least_score)
+			     end;	      
+  in
+      least_sum(cs, aces, score(cs, goal))
+  end;
 
 
-			   
+
+(*
+copy from the fun *officiate* and modify the fun *score* to the *score_challenge* only
+*)
+fun officiate_challenge(cs: card list, move: move list, goal: int) =
+  let fun play(cs, move, held_cards: card list) =
+	let val now_score = score_challenge(held_cards, goal);
+	in
+	    if now_score > goal then now_score
+	    else
+		case move of
+		    [] => now_score
+		  | Discard(card) :: move_lists =>
+		    play(cs, move_lists, remove_card(held_cards, card,  IllegalMove))
+		  | Draw :: move_lists =>
+		    case cs of
+			[] => now_score
+		      | first :: card_lists =>
+			play(card_lists, move_lists,held_cards @ [first])
+	end;
+  in
+      play(cs, move, [])
+  end;
+
+
+  
+
+
+  
