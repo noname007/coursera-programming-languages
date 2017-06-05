@@ -53,7 +53,7 @@ fun similar_names (l: string list list, full_name: {first: string, middle: strin
 	      [] => accu
 	    | h :: t => gen(t, accu @ [{first = h, middle = middle_name, last = last }] )
   in
-      gen(first_name_sets, [])
+      full_name :: gen(first_name_sets, [])
   end;
 
   
@@ -72,9 +72,9 @@ exception IllegalMove
 (* 2a *)
 fun card_color(card:card) =
   case card of
-      (Clubs, _) => Red
-    | (Spades, _) => Red
-    | _  => Black
+      (Clubs, _) => Black
+    | (Spades, _) => Black
+    | _  => Red
 (* 2b *)
 fun card_value (card:card)=
   case card of
