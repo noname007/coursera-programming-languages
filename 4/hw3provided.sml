@@ -55,3 +55,44 @@ val longest_string4 = longest_string_helper (fn (i1, i2) => i1 >= i2)
 val  longest_capitalized  = longest_string1 o only_capitals
   
 (* 6 *)
+fun rev_string s =
+  (String.implode o rev o String.explode)  s
+
+(* 7 *)
+fun first_answer func ls =
+  case List.filter (fn l => case func l  of
+				NONE => false
+			      | SOME _ => true) ls of
+      [] => raise NoAnswer
+    | x ::_ => x
+			   
+		   
+(************ 
+ List.filter (fn l => case func(l) of
+			   NONE => 
+	      ) ls 
+	     ***********)
+(* 8 *)
+
+fun all_answers func ls =
+  if null ls then SOME []
+  else case foldl (fn (l, accu)  =>
+		      case func l of
+			  NONE => accu 
+			| SOME x => accu @ x)  []   ls of
+	   [] => NONE
+	 | x => SOME x
+		     
+(* 8  more better solutions for this questions*)		     
+fun all_answers2 func ls =
+  let fun foldf (l, accu) =
+	case (func l, accu) of
+	    (NONE, _) => accu
+	  | (SOME x, NONE) => SOME x
+	  | (SOME x, SOME a) =>  SOME (a @ x)
+  in
+      foldl foldf  (SOME [])  ls       
+  end
+		
+
+	
