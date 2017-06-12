@@ -60,12 +60,22 @@ fun rev_string s =
 
 (* 7 *)
 fun first_answer func ls =
-  case List.filter (fn l => case func l  of
-				NONE => false
-			      | SOME _ => true) ls of
-      [] => raise NoAnswer
+  case ls
+   of [] => raise NoAnswer
+    | l :: ls' => case func l
+		   of NONE => first_answer func ls
+		    | SOME x => x
+				    
+		       (*
+      
+  case List.filter (fn l =>
+		       case func l
+			of NONE => false
+			 | SOME x => x
+		   ) ls
+   of [] => raise NoAnswer
     | x ::_ => x
-			   
+			  *)	   
 		   
 (************ 
  List.filter (fn l => case func(l) of
@@ -74,7 +84,7 @@ fun first_answer func ls =
 	     ***********)
 (* 8 *)
 
-fun all_answers func ls =
+fun all_answers1 func ls =
   if null ls then SOME []
   else case foldl (fn (l, accu)  =>
 		      case func l of
@@ -84,10 +94,11 @@ fun all_answers func ls =
 	 | x => SOME x
 		     
 (* 8  more better solutions for this questions*)		     
-fun all_answers2 func ls =
+fun all_answers func ls =
   let fun foldf (l, accu) =
 	case (func l, accu) of
-	    (NONE, _) => accu
+	    (NONE, SOME []) => NONE
+	  | (NONE, accu) => accu
 	  | (SOME x, NONE) => SOME x
 	  | (SOME x, SOME a) =>  SOME (a @ x)
   in
@@ -96,3 +107,68 @@ fun all_answers2 func ls =
 		
 
 	
+(* 9a 9b 9c *)
+val count_wildcards = g (fn _ => 1) (fn _ => 0)
+			
+val count_wild_and_variable_lengths = g (fn _ => 1) (fn s => String.size(s))
+
+val count_some_var = fn (x,p) =>  g (fn _ => 0) (fn s => if s = x then 1 else 0 ) p
+
+(* 10 *)
+fun check_pat p =
+  let fun get_all_name p =
+	case p of
+	    Variable s => [s]
+	  | TupleP ps  => List.foldl (fn (p, accu)=> accu @ get_all_name p) [] ps
+	  | ConstructorP (_, p) => get_all_name p
+	  | _  =>  []
+      fun var_names names =
+	case names of
+	    [] =>  true
+	  | x :: xs' =>  case (List.exists (fn e => x = e) xs') of
+			     true => false
+			   | false => var_names xs'
+
+	
+  in
+      (var_names o get_all_name) p
+  end
+
+(* 11 *)
+fun match (v, p) =
+  let fun inner_match (v, p) = 
+	case (p, v)
+	 of (Wildcard, _) =>  []
+	  | (Variable s, v) => [(s, v)]
+	  | (UnitP, Unit) => []
+	  | (ConstP c1, Const c2) =>
+	    if c1 = c2  then [] else [("",Unit)]
+	  | (TupleP ps, v) =>
+	    List.foldl (fn (p, accu) => accu @  inner_match(v, p)) [] ps
+	  | (ConstructorP(s1, p), Constructor(s2, v)) =>
+	    if s1 = s2 then inner_match(v, p)
+	    else [("", Unit)]
+	  | _  => [("", Unit)]
+		       
+  in
+      (*
+inner_match(v, p)
+      *)
+      all_answers (fn l =>
+		      case l
+		       of ("", Unit) => NONE
+			| _  => SOME [l] )  (inner_match(v, p))
+		  
+  end
+      
+
+      
+(* 12 *)
+fun first_match v ps =
+  SOME (first_answer (fn p => match(v, p)) ps)
+  handle NoAnswer => NONE
+ 
+  
+  
+
+      
