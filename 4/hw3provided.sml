@@ -63,7 +63,7 @@ fun first_answer func ls =
   case ls
    of [] => raise NoAnswer
     | l :: ls' => case func l
-		   of NONE => first_answer func ls
+		   of NONE => first_answer func ls'
 		    | SOME x => x
 				    
 		       (*
@@ -93,7 +93,7 @@ fun all_answers1 func ls =
 	   [] => NONE
 	 | x => SOME x
 		     
-(* 8  more better solutions for this questions*)		     
+(* 8  more better solutions for this questions		     
 fun all_answers func ls =
   let fun foldf (l, accu) =
 	case (func l, accu) of
@@ -104,13 +104,23 @@ fun all_answers func ls =
   in
       foldl foldf  (SOME [])  ls       
   end
-		
-
+ *)
+		     
+fun all_answers func xs =
+  let fun loop (acc, xs) =
+	case xs of
+	    [] => SOME acc
+	  | x :: xs' => case  func x of
+			    NONE => NONE
+			  | SOME y => loop(y @ acc, xs')
+  in
+      loop([], xs)
+  end
 	
 (* 9a 9b 9c *)
 val count_wildcards = g (fn _ => 1) (fn _ => 0)
 			
-val count_wild_and_variable_lengths = g (fn _ => 1) (fn s => String.size(s))
+val count_wild_and_variable_lengths = g (fn _ => 1) String.size
 
 val count_some_var = fn (x,p) =>  g (fn _ => 0) (fn s => if s = x then 1 else 0 ) p
 
