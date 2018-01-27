@@ -23,6 +23,21 @@
 ;; Problem 1
 
 ;; CHANGE (put your solutions here)
+(define (racketlist->mupllist lst)
+  (if (null? lst)
+      (aunit)
+      (apair (car lst)
+             (racketlist->mupllist (cdr lst)))))
+
+;(define a (racketlist->mupllist (list 1 2 3 4)))
+;a
+(define (mupllist->racketlist slst)
+  (if (aunit? slst)
+      empty
+      (cons (apair-e1 slst)
+            (mupllist->racketlist (apair-e2 slst)))))
+;(mupllist->racketlist a)
+
 
 ;; Problem 2
 
@@ -49,23 +64,97 @@
                        (int-num v2)))
                (error "MUPL addition applied to non-number")))]
         ;; CHANGE add more cases here
+        [(or (int? e)
+             (closure? e)
+             (aunit? e))
+         e]
+        [(fun? e) (closure env e)]
+        [(ifgreater? e)
+         (let ([v1 (eval-under-env (ifgreater-e1 e) env)]
+               [v2 (eval-under-env (ifgreater-e2 e) env)])
+           (if (and (int? v1)
+                    (int? v2)
+                    (> (int-num v1) (int-num v2)))
+               (eval-under-env (ifgreater-e3 e) env)
+               (eval-under-env (ifgreater-e4 e) env)))]
+        [(mlet? e) (eval-under-env
+                    (mlet-body e)
+                    (cons (cons (mlet-var e)
+                                (mlet-e e))
+                          env))]
+        [(call? e)
+         (let ([v1 (eval-under-env (call-funexp e) env)]
+               [v2 (eval-under-env (call-actual e) env)])
+           (if (closure? v1)
+               (let ([func-name  (fun-nameopt (closure-fun v1))]
+                     [func-param (fun-formal  (closure-fun v1))]
+                     [func-body  (fun-body    (closure-fun v1))]
+                     [func-env (closure-env v1)])
+                 (eval-under-env func-body (if func-name
+                                               (cons (cons func-name  v1)
+                                                     (cons (cons func-param v2)
+                                                           func-env))
+                                               (cons (cons func-param v2)
+                                                     func-env))))        
+               (error "MUPL call applied to non-closure:~v" v1)))]
+               
+        [(apair? e) (apair (eval-under-env (apair-e1 e) env)
+                           (eval-under-env (apair-e2 e) env))]
+        [(fst? e) (apair-e1 (eval-under-env e env))]
+        [(snd? e) (apair-e2 (eval-under-env e env))]
+        [(isaunit? e) (if (aunit? e)
+                          (int 1)
+                          (int 0))]
         [#t (error (format "bad MUPL expression: ~v" e))]))
 
 ;; Do NOT change
 (define (eval-exp e)
   (eval-under-env e null))
-        
+
+;(display "-----------------------test problem 2 case ------------\n")
+;(eval-exp (add (int 1) (int 2)))
+
+;(define body  (mlet (var "a9")
+ ;                   (int 3)
+  ;                  (add (var "a1") (var "b"))))
+
+;(define func (fun "a" "b" body))
+
+;(eval-exp func)
+
+;(define func-with-closure (mlet (var "a1")
+;                                (int 16)
+ ;                               func))
+
+;(eval-exp func-with-closure)
+;(eval-exp (call func-with-closure (int 100)))
+
+
+;(eval-exp ))
 ;; Problem 3
 
-(define (ifaunit e1 e2 e3) "CHANGE")
+;(display "-----------------------test problem 3 case ------------\n")
 
-(define (mlet* lstlst e2) "CHANGE")
+(define (ifaunit e1 e2 e3) (if (aunit? (eval-exp e1))
+                               (eval-exp e2)
+                               (eval-exp e3)))
 
-(define (ifeq e1 e2 e3 e4) "CHANGE")
+(define (mlet* lstlst e2) (eval-under-env e2 lstlst))
+
+(define (ifeq e1 e2 e3 e4)
+  (let ([v1 (eval-exp e1)]
+        [v2 (eval-exp e2)])
+    (if (and (int? v1)
+             (int? v2)
+             (= (int-num v1) (int-num v2)))
+        (eval-exp e3)
+        (eval-exp e4))))
 
 ;; Problem 4
-
 (define mupl-map "CHANGE")
+;(define mupl-map (lambda (mupl-fun)
+;                   (lambda (mupl-list)
+;                     (call mupl-fun  (fst mupl-list)))))
 
 (define mupl-mapAddN 
   (mlet "map" mupl-map
