@@ -103,7 +103,7 @@
                            (eval-under-env (apair-e2 e) env))]
         [(fst? e) (apair-e1 (eval-under-env (fst-e e) env))]
         [(snd? e) (apair-e2 (eval-under-env (snd-e e) env))]
-        [(isaunit? e) (if (aunit? (isaunit-e e))
+        [(isaunit? e) (if (aunit? (eval-under-env (isaunit-e e) env))
                           (int 1)
                           (int 0))]
         [#t (error (format "bad MUPL expression: ~v" e))]))
@@ -136,9 +136,11 @@
 
 ;(display "-----------------------test problem 3 case ------------\n")
 
-(define (ifaunit e1 e2 e3) (if (aunit?  e1)
-                               e2
-                               e3))
+(define (ifaunit e1 e2 e3)
+  (ifeq (isaunit e1)
+        (int 0)
+        e3
+        e2))
 
 (define (mlet*-1 lstlst e2)
   (if (null? lstlst)
@@ -183,9 +185,6 @@
                                           (apair (call (var "fun") (fst (var "l")))
                                                  (call (call (var "map") (var "fun")) (snd (var "l")))))))))
 
-(define (mymap f l)
-  (cons (f (car l))
-        (mymap f (cdr l))))
 
 (define mupl-mapAddN 
   (mlet "map" mupl-map
