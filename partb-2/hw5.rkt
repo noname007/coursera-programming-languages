@@ -100,8 +100,8 @@
                
         [(apair? e) (apair (eval-under-env (apair-e1 e) env)
                            (eval-under-env (apair-e2 e) env))]
-        [(fst? e) (apair-e1 (eval-under-env e env))]
-        [(snd? e) (apair-e2 (eval-under-env e env))]
+        [(fst? e) (apair-e1 (eval-under-env (fst-e e) env))]
+        [(snd? e) (apair-e2 (eval-under-env (snd-e e) env))]
         [(isaunit? e) (if (aunit? e)
                           (int 1)
                           (int 0))]
@@ -135,13 +135,25 @@
 
 ;(display "-----------------------test problem 3 case ------------\n")
 
-(define (ifaunit e1 e2 e3) (if (aunit? (eval-exp e1))
-                               (eval-exp e2)
-                               (eval-exp e3)))
+(define (ifaunit e1 e2 e3) (if (aunit?  e1)
+                               e2
+                               e3))
 
-(define (mlet* lstlst e2) (eval-under-env e2 lstlst))
-
-(define (ifeq e1 e2 e3 e4)
+(define (mlet*-1 lstlst e2)
+  (if (null? lstlst)
+      e2
+      (mlet* (cdr lstlst)
+             (mlet (car (car lstlst))
+                   (cdr (car lstlst))
+                   e2))))
+(define (mlet* lstlst e2)
+  (if (null? lstlst)
+      e2
+      (mlet (car (car lstlst))
+            (cdr (car lstlst))
+            (mlet* (cdr lstlst) e2))))
+      
+(define (ifeq-1 e1 e2 e3 e4)
   (let ([v1 (eval-exp e1)]
         [v2 (eval-exp e2)])
     (if (and (int? v1)
@@ -149,6 +161,10 @@
              (= (int-num v1) (int-num v2)))
         (eval-exp e3)
         (eval-exp e4))))
+
+      
+(define (ifeq e1 e2 e3 e4)
+  (ifgreater e1 e2 e4 (ifgreater e2 e1 e4 e3)))
 
 ;; Problem 4
 (define mupl-map "CHANGE")
