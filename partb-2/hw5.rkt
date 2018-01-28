@@ -44,6 +44,7 @@
 ;; lookup a variable in an environment
 ;; Do NOT change this function
 (define (envlookup env str)
+  ;(display (format "dump env:~a~n" env) )
   (cond [(null? env) (error "unbound variable during evaluation" str)]
         [(equal? (car (car env)) str) (cdr (car env))]
         [#t (envlookup (cdr env) str)]))
@@ -80,7 +81,7 @@
         [(mlet? e) (eval-under-env
                     (mlet-body e)
                     (cons (cons (mlet-var e)
-                                (mlet-e e))
+                                (eval-under-env (mlet-e e) env))
                           env))]
         [(call? e)
          (let ([v1 (eval-under-env (call-funexp e) env)]
@@ -102,7 +103,7 @@
                            (eval-under-env (apair-e2 e) env))]
         [(fst? e) (apair-e1 (eval-under-env (fst-e e) env))]
         [(snd? e) (apair-e2 (eval-under-env (snd-e e) env))]
-        [(isaunit? e) (if (aunit? e)
+        [(isaunit? e) (if (aunit? (isaunit-e e))
                           (int 1)
                           (int 0))]
         [#t (error (format "bad MUPL expression: ~v" e))]))
@@ -164,13 +165,27 @@
 
       
 (define (ifeq e1 e2 e3 e4)
-  (ifgreater e1 e2 e4 (ifgreater e2 e1 e4 e3)))
+  (mlet "_x" e1
+        (mlet "_y" e2
+              (ifgreater (var "_x") (var "_y")
+                         e4
+                         (ifgreater (var "_y") (var "_x")
+                                    e4
+                                    e3)))))
 
 ;; Problem 4
-(define mupl-map "CHANGE")
-;(define mupl-map (lambda (mupl-fun)
-;                   (lambda (mupl-list)
-;                     (call mupl-fun  (fst mupl-list)))))
+;(define mupl-map "CHANGE")
+(define mupl-map (fun "map" "fun"
+                      (fun #f "list"
+                           (mlet "l" (var "list")
+                                 (ifaunit (var "l")
+                                          (aunit)
+                                          (apair (call (var "fun") (fst (var "l")))
+                                                 (call (call (var "map") (var "fun")) (snd (var "l")))))))))
+
+(define (mymap f l)
+  (cons (f (car l))
+        (mymap f (cdr l))))
 
 (define mupl-mapAddN 
   (mlet "map" mupl-map
