@@ -185,10 +185,12 @@
                                           (apair (call (var "fun") (fst (var "l")))
                                                  (call (call (var "map") (var "fun")) (snd (var "l")))))))))
 
-
+;"CHANGE (notice map is now in MUPL scope)"
 (define mupl-mapAddN 
   (mlet "map" mupl-map
-        "CHANGE (notice map is now in MUPL scope)"))
+        (fun #f "int"
+             (call (var "map")
+                   (fun #f "x" (add (var "x") (var "int")))))))
 
 ;; Challenge Problem
 
